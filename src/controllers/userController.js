@@ -12,13 +12,15 @@ let handleLogin = async (req, res) => {
         })
     }
 
-    let userData = await USERservices.handleLogin(email, password);
+    let userData = await USERservices.handleUserLogin(email, password);
 
 
     return res.status(200).json({
-        userData
+        userData : userData.errCode,
+        message:  userData.message,
+        user : userData.user ?userData.user : {},
     })
 }
 module.exports = {
-    handleLogin :handleLogin,
-}
+    handleLogin
+};
