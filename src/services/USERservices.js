@@ -21,7 +21,7 @@ let handleUserLogin = (email, password) => {
             let isExist = await checkUserEmail(email);
             if (isExist) {
                 let user = await db.User.findOne({
-                    attributes :['email' , 'roleId','password'],
+                    attributes :['email' , 'roleId','password','firstName','lastName'],
                     where: { email: email },
                     raw : true
                 });
@@ -103,10 +103,10 @@ let createNewUser = (data) => {
             if (check ===true) {
                 resolve({
                     errCode: 1,
-                    message: "your email is already in user, pls try another email!"
+                    errMessage: "your email is already in user, pls try another email!"
                 })
-            }
-            let hasdPasswordFromBcrypt = await hasdUserPassword(data.password);
+            } else {
+                let hasdPasswordFromBcrypt = await hasdUserPassword(data.password);
             await db.User.create({
                 email: data.email,
                 password: hasdPasswordFromBcrypt,
@@ -119,8 +119,10 @@ let createNewUser = (data) => {
             })
             resolve({
                 errCode: 0,
-                message: '0k'
+                errMessage: '0k'
             })
+            }
+            
         } catch (e) {
             reject(e)
         }
@@ -174,11 +176,35 @@ let updataUserData =(data) => {
         }
     })
 }
+let getAllCodeService = (typeInput) => {
+    return new Promise(async(resolve, reject) => {
+        try {
+            if (!typeInput) {
+                resolve({
+                    errCode: 1,
+                    errMessage : 'Mising required parameters !'
+                })
+            }
+            else {
+                let res = {}
+                let allcode = await db.allcode.findAll({
+                    where: { type: typeInput }
+                });
+                res.errCode = 0;
+                res.data = allcode;
+                resolve(res);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
 module.exports = {
     handleUserLogin: handleUserLogin,
     checkUserEmail :checkUserEmail,
     getAllUsers: getAllUsers,
     createNewUser: createNewUser, 
     deleteUser: deleteUser,
-    updataUserData : updataUserData,
+    updataUserData: updataUserData,
+    getAllCodeService: getAllCodeService,
 }
